@@ -34,9 +34,7 @@ class SpriteSheetClass(object):
 class Particles(object):
     def __init__(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.screen = gameData[3]
-        self.start = gameData[4]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         mauseCor = pygame.mouse.get_pos()
         self.localitation = [mauseCor[0],mauseCor[1]]
@@ -52,13 +50,7 @@ class Particles(object):
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.gameSize = gameData[1]
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
-
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
     def printParticles(self):
         self.localitation[0] += self.velocity[0]
@@ -76,14 +68,9 @@ class Particles(object):
             self.color = random.choice(self.colorsParticles)
 
 class AnimationClass(object):
-    def __init__(self,pos,image,animationSteps,animationSize,ticks,screenObject):
+    def __init__(self,pos,image,animationSteps,animationSize,ticks,onlyOnce,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.gameSize = gameData[1]
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         self.animationSize = animationSize
 
@@ -100,18 +87,33 @@ class AnimationClass(object):
         self.animation = SpriteSheetClass(image)
         self.animationList = functions.listCreator(self.animationSteps,self.animation,self.animationSize[0],self.animationSize[1],self.screenObject)
 
+        self.onlyOnce = onlyOnce
+
         self.done = False
 
     def printAnimation(self):
-        if functions.timeCooldown(self.ticks,self.lastUpdate):
+        if self.onlyOnce:
+            if functions.timeCooldown(self.ticks,self.lastUpdate):
 
-            self.lastUpdate = pygame.time.get_ticks()
-            self.frame += 1
-            self.done = False
-            if self.frame >= len(self.animationList):
-                self.frame = 0
-                self.done = True
+                self.lastUpdate = pygame.time.get_ticks()
+                self.frame += 1
+                self.done = False
+                if self.frame >= len(self.animationList):
+                    self.frame = 0
+                    self.done = True
 
-        if not self.done:
+            if not self.done:
+                self.screen.blit(self.animationList[self.frame][0], self.pos)
+        else:
+            if functions.timeCooldown(self.ticks,self.lastUpdate):
+
+                self.lastUpdate = pygame.time.get_ticks()
+                self.frame += 1
+                if self.frame >= len(self.animationList):
+                    self.frame = 0
+
             self.screen.blit(self.animationList[self.frame][0], self.pos)
+
+            return self.animationList[self.frame][1]
+            
 

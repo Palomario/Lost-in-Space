@@ -7,8 +7,9 @@ class Screen(object):
         self.gameSize =   {"width": 800, "height": 750}
         self.scale = 1.5
 
-        self.run = True
+        self.runGame = False
         self.paused = False
+        self.gameOver = False
         
         self.startingPoint = {"x": int(self.screenSize["width" ] / 2) - int(self.gameSize["width" ] / 2),
                               "y": int(self.screenSize["height"] / 2) - int(self.gameSize["height"] / 2)}
@@ -24,7 +25,7 @@ class Screen(object):
         self.screen = pygame.display.set_mode((self.screenSize["width"],self.screenSize["height"]), pygame.RESIZABLE)
 
     def returnGameData(self):
-        return self.screenSize, self.gameSize, self.scale, self.screen, self.startingPoint, self.endPoint, self.run
+        return self.screenSize, self.gameSize, self.scale, self.screen, self.startingPoint, self.endPoint, self.runGame
 
     def getGameData(self,screenSize):
         self.screenSize = screenSize

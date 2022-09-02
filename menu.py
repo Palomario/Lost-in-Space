@@ -14,8 +14,8 @@ import gameData
 pygame.init()
 
 def mainMenu(screenObject):
-    objectList = nemyList,enemyObjectList,playerList,player,planets,stars = functions.buildObjects(screenObject)
-    enemyList,enemyObjectList,playerList,player,planets,stars = objectList
+    objectList = functions.buildObjects(screenObject)
+    enemyList,enemyObjectList,playerList,player,planets,stars,money = objectList
 
     particles = []
     for a in range(200):
@@ -40,7 +40,10 @@ def mainMenu(screenObject):
     mainMenu = pygame.image.load('images/mainMenu/mainMenu.png').convert_alpha()
 
     while True:
-        screenSize,gameSize,scale,screen,start,end,run = screenObject.returnGameData()
+        if screenObject.runGame == True:
+            theGame(screenObject)
+
+        screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
         specialEfect,mauseEvent = functions.checkEvents(screenObject,objectList,specialEfect=False)
 
@@ -53,7 +56,7 @@ def mainMenu(screenObject):
             if 375+start["y"] <= mausePos["y"] <= 480+start["y"]:
                 screen.blit(playImg,(240+start["x"],375+start["y"]))
                 if mauseEvent:
-                    screenObject.run = True
+                    screenObject.runGame = True
                     theGame(screenObject)
 
         if 48+start["x"] <= mausePos["x"] <= 281+start["x"]:
@@ -77,9 +80,11 @@ def mainMenu(screenObject):
                     os.system('cls')
                     print("THE SHOP ARE IN PROGRESS")
 
-        for particle in particles:
-            particle.printParticles()
-            particle.reloadGameData(screenObject)
+        if start["x"] <= mausePos["x"] <= end["x"]:
+            if start["y"] <= mausePos["y"] <= end["y"]:
+                for particle in particles:
+                    particle.printParticles()
+                    particle.reloadGameData(screenObject)
                             
         functions.frameworkScreen(screenObject)
 
@@ -87,7 +92,7 @@ def mainMenu(screenObject):
         clock.tick(70)
 
 def pauseMenu(screenObject,objectList):
-    screenSize,gameSize,scale,screen,start,end,run = screenObject.returnGameData()
+    screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
     particles = []
     for a in range(200):
@@ -109,8 +114,8 @@ def pauseMenu(screenObject,objectList):
     pauseImage = pygame.image.load('images/pauseMenu/pause.png').convert_alpha()
 
     while screenObject.paused:
-        screenSize,gameSize,scale,screen,start,end,run = screenObject.returnGameData()
-        if screenObject.run == False:
+        screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+        if screenObject.runGame == False:
             screenObject.paused = not screenObject.paused
 
         specialEfect,mauseEvent = functions.checkEvents(screenObject,objectList,specialEfect=False)
@@ -131,7 +136,7 @@ def pauseMenu(screenObject,objectList):
                 screen.blit(quitImg,(32+start["x"],579+start["y"]))
                 if mauseEvent:
                     print("QUIT")
-                    screenObject.run = False
+                    screenObject.runGame = False
 
         if 504+start["x"] <= mausePos["x"] <= 767+start["x"]:
             if 581+start["y"] <= mausePos["y"] <= 677+start["y"]:
@@ -139,27 +144,82 @@ def pauseMenu(screenObject,objectList):
                 if mauseEvent:
                     print("THE OPTIONS ARE IN PROGRESS")
 
-        for particle in particles:
-            particle.printParticles()
-            particle.reloadGameData(screenObject)
+        if start["x"] <= mausePos["x"] <= end["x"]:
+            if start["y"] <= mausePos["y"] <= end["y"]:
+                for particle in particles:
+                    particle.printParticles()
+                    particle.reloadGameData(screenObject)
                             
         functions.frameworkScreen(screenObject)
 
         pygame.display.update()
         clock.tick(70)
 
-def theGame(screenObject):
-    objectList = nemyList,enemyObjectList,playerList,player,planets,stars = functions.buildObjects(screenObject)
-    enemyList,enemyObjectList,playerList,player,planets,stars = objectList
-    
-    screenSize,gameSize,scale,screen,start,end,run = screenObject.returnGameData()
+def gameOverMenu(screenObject,objectList):
+    screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
-    enemyList,enemyObjectList,playerList,player,planets,stars = objectList
+    particles = []
+    for a in range(200):
+        particle = editingImage.Particles(screenObject)
+        particles.append(particle)
+        particle.printParticles()
+
+    clock = pygame.time.Clock()
+
+    tryAgainImg = pygame.image.load('images/gameOverMenu/tryAgain.png').convert_alpha()
+    tryAgainImg.set_colorkey([0,255,0])
+
+    menuImg = pygame.image.load('images/gameOverMenu/menu.png').convert_alpha()
+    menuImg.set_colorkey([0,255,0])
+
+    gameOverMenuImage = pygame.image.load('images/gameOverMenu/gameOverMenu.png').convert_alpha()
+
+    while screenObject.gameOver:
+        screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+        specialEfect,mauseEvent = functions.checkEvents(screenObject,objectList,specialEfect=False)
+
+        screen.blit(gameOverMenuImage,(start["x"],start["y"]))
+
+        mauseCor = pygame.mouse.get_pos()
+        mausePos = {"x": mauseCor[0], "y": mauseCor[1]}
+
+        if 36+start["x"] <= mausePos["x"] <= 461+start["x"]:
+            if 628+start["y"] <= mausePos["y"] <= 716+start["y"]:
+                screen.blit(tryAgainImg,(36+start["x"],628+start["y"]))
+                if mauseEvent:
+                    screenObject.runGame = True
+                    screenObject.gameOver = False
+
+        if 531+start["x"] <= mausePos["x"] <= 766+start["x"]:
+            if 628+start["y"] <= mausePos["y"] <= 716+start["y"]:
+                screen.blit(menuImg,(531+start["x"],628+start["y"]))
+                if mauseEvent:
+                    screenObject.runGame = False
+                    screenObject.gameOver = False
+
+        if start["x"] <= mausePos["x"] <= end["x"]:
+            if start["y"] <= mausePos["y"] <= end["y"]:
+                for particle in particles:
+                    particle.printParticles()
+                    particle.reloadGameData(screenObject)
+                            
+        functions.frameworkScreen(screenObject)
+
+        pygame.display.update()
+        clock.tick(70)
+
+
+def theGame(screenObject):
+    objectList = functions.buildObjects(screenObject)
+    enemyList,enemyObjectList,playerList,player,planets,stars,money = objectList
+    
+    screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
     specialEfect = False
     clock = pygame.time.Clock()
     pygame.display.set_caption("Spaceships Game")
-    while screenObject.run:
+    while screenObject.runGame:
         specialEfect,mauseEvent = functions.checkEvents(screenObject,objectList,specialEfect)
 
         if not specialEfect:
@@ -170,11 +230,14 @@ def theGame(screenObject):
         for i in range(0,600):
             stars[i].moveCircle(player.returnStarsSpeed())
 
-        player.getAllObjectList(playerList,enemyList,enemyObjectList)
+        money.printMoneyAnimations()
+
+        player.getAllObjectList(playerList,enemyList,enemyObjectList,money)
         player.movePlayer()
         player.printPlayer()
         player.colisionsEnemys()
         player.colisionsBullet()
+        player.colisionsMoney()
 
         destroyAnimationList = []
         for enemy in enemyObjectList:
@@ -193,3 +256,5 @@ def theGame(screenObject):
 
         clock.tick(30)
         pygame.display.update()
+
+    gameOverMenu(screenObject,objectList)

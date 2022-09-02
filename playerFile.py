@@ -14,21 +14,16 @@ class playerClass(editingImage.SpriteSheetClass):
         self.steps = [5,5,5]
 
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.gameSize = gameData[1]
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
         
-        self.playerSize = [40,60]
+        self.playerSize = {"width": 40, "height": 60}
         self.speed = 10
         self.health = 0
 
         self.balance = 0.00
 
         self.playerPos = {"x": int(self.screen.get_width() / 2),
-                          "y": self.gameSize["height"] - self.playerSize[1] * self.scale}
+                          "y": self.gameSize["height"] - self.playerSize["height"] * self.scale}
 
         self.sprite = 0
 
@@ -45,22 +40,22 @@ class playerClass(editingImage.SpriteSheetClass):
         self.enemyDirectionX,self.enemyDirectionY = 0,1
         self.backgroundSpeed = 0.5
 
+        self.coinsCount = 0
+        self.billsCount = 0
+
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.gameSize = gameData[1]
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         self.playerPos = {"x": int(self.screen.get_width() / 2),
-                          "y": self.gameSize["height"] - self.playerSize[1] * self.scale}
+                          "y": self.gameSize["height"] - self.playerSize["height"] * self.scale}
 
-    def getAllObjectList(self,playerList,enemyList,enemyObjectList):
+    def getAllObjectList(self,playerList,enemyList,enemyObjectList,moneyObject):
         self.playerList = playerList
         self.enemyList = enemyList
         self.enemyObjectList = enemyObjectList
+        self.billList = moneyObject.billList
+        self.coinList = moneyObject.coinList
 
     def returnBackgroundSpeed(self):
         return self.backgroundSpeed
@@ -117,7 +112,7 @@ class playerClass(editingImage.SpriteSheetClass):
         keys = pygame.key.get_pressed()
 
         self.shooting(keys)
-        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.playerPos["x"] <= self.end["x"] - self.playerSize[0] * self.scale:
+        if (keys[pygame.K_RIGHT] or keys[pygame.K_d]) and self.playerPos["x"] <= self.end["x"] - self.playerSize["width"] * self.scale:
             self.playerDirection = "right"
 
             self.checkEventPlayer()
@@ -129,7 +124,7 @@ class playerClass(editingImage.SpriteSheetClass):
             self.playerDirection = "up"
 
             self.checkEventPlayer()
-        elif (keys[pygame.K_DOWN] or keys[pygame.K_s]) and self.playerPos["y"] <= self.end["y"] - self.playerSize[1] * self.scale:
+        elif (keys[pygame.K_DOWN] or keys[pygame.K_s]) and self.playerPos["y"] <= self.end["y"] - self.playerSize["height"] * self.scale:
             self.playerDirection = "down"
             
             self.checkEventPlayer()
@@ -148,12 +143,13 @@ class playerClass(editingImage.SpriteSheetClass):
                 enemy.reset()
                 
                 self.playerPos = {"x": int(self.screen.get_width() / 2),
-                                  "y": self.gameSize["height"] - self.playerSize[1] * self.scale}
+                                  "y": self.gameSize["height"] - self.playerSize["height"] * self.scale}
 
                 if  not self.health >= 2:
                     self.health += 1
                 else:
-                    self.screenObject.run = False
+                    self.screenObject.runGame = False
+                    self.screenObject.gameOver = True
                     self.health = 0
                     self.reloadGameData(self.screenObject)
 
@@ -161,10 +157,10 @@ class playerClass(editingImage.SpriteSheetClass):
         ValidA,ValidB = False, False
         for bullet in bulletsList:
             if bulletsList.index(bullet) == 0:
-                if bullet.x >= enemy.enemyPos["x"] and bullet.x <= enemy.enemyPos["x"] + enemy.enemySize[0]* self.scale:
+                if bullet.x >= enemy.enemyPos["x"] and bullet.x <= enemy.enemyPos["x"] + enemy.enemySize["width"]* self.scale:
                     ValidA = True
             elif bulletsList.index(bullet) == 1:
-                if bullet.x >= enemy.enemyPos["x"] and bullet.x <= enemy.enemyPos["x"] + enemy.enemySize[0]* self.scale:
+                if bullet.x >= enemy.enemyPos["x"] and bullet.x <= enemy.enemyPos["x"] + enemy.enemySize["width"]* self.scale:
                     ValidB = True
 
         if ValidA and ValidB:
@@ -206,14 +202,30 @@ class playerClass(editingImage.SpriteSheetClass):
                                 self.hits += 1
                                 enemy.loseHealth(self.bulletDamage)
 
-    def printPoints(self):
-        os.system('cls')
-        for enemy in self.enemyObjectList:
-            self.enemiesDown += enemy.enemiesDown
+    def colisionsMoney(self):
+        playerMask = self.playerList[self.health][self.sprite][1]
+        for bill in self.billList:
+            billMask = bill.mask 
+            
+            colisions = functions.detectColision(billMask,(bill.billPos["x"],bill.billPos["y"]),playerMask,(self.playerPos["x"],self.playerPos["y"])) 
 
-        print("All the hits that you made to the enemies are/is: " + str(self.hits))
-        print("All the enemies that you distroy are/is: " + str(self.enemiesDown))
-        os.system('cls')
+            if colisions:
+                self.billsCount += 1
+                bill.reset()
+
+        for coin in self.coinList:
+            coinMask = coin.mask 
+            
+            colisions = functions.detectColision(coinMask,(coin.coinPos["x"],coin.coinPos["y"]),playerMask,(self.playerPos["x"],self.playerPos["y"])) 
+
+            if colisions:
+                self.coinsCount += 1
+                coin.reset()
+
+        self.calculateBalance()
+
+    def calculateBalance(self):
+        self.balance = self.coinsCount / 100 + self.billsCount
 
     def shooting(self,keys):
         self.coolDownCount = functions.cooldown(self.coolDownCount,self.cooldown)
@@ -249,11 +261,7 @@ class playerClass(editingImage.SpriteSheetClass):
 class Bullet(object):
     def __init__(self,x, y,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         self.x = x
         self.y = y
@@ -278,8 +286,4 @@ class Bullet(object):
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()

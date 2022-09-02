@@ -12,11 +12,7 @@ pygame.init()
 class StarsClass(object):
     def __init__(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         self.x = random.randrange(self.start["x"],self.end["x"])
         self.y = random.randrange(self.start["y"],self.end["y"])
@@ -51,11 +47,7 @@ class StarsClass(object):
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
         self.x = random.randrange(self.start["x"],self.end["x"])
         self.y = random.randrange(self.start["y"],self.end["y"])
@@ -96,8 +88,4 @@ class BackgroundClass(object):
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()

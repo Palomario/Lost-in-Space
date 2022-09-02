@@ -15,40 +15,34 @@ class enemyClass(editingImage.SpriteSheetClass):
         self.steps = [3,3,3,3]
 
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
-        self.enemySize = [50,50]
+        self.enemySize = {"width": 50, "height": 50}
         self.speedFactor = (10,15)
         self.speed = random.randrange(self.speedFactor[0],self.speedFactor[1])
         self.typeOfenemy = typeOfenemy
         self.health = 0
 
-        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize[0] * self.scale),
-                         "y": int(self.start["y"] - self.enemySize[1] * self.scale)}
+        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize["width"] * self.scale),
+                         "y": int(self.start["y"] - self.enemySize["height"] * self.scale)}
         self.enemiesDown = 0
 
         self.animationImg = pygame.image.load('images/game/explotion.png')
         self.explotionSteps = [8]
         self.destroyAnimationList = []
+        self.ticks = 100
+        self.onlyOnce = True
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
-        gameData = self.screenObject.returnGameData()
-        self.scale = gameData[2]
-        self.screen = gameData[3]
-        self.start = gameData[4]
-        self.end = gameData[5]
+        self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
 
     def getEnemyDirections(self,directions):
         self.enemyDirectionX,self.enemyDirectionY = directions
 
     def outOfLine(self):
-        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize[0] * self.scale),
-                         "y": int(self.start["y"] - self.enemySize[1] * self.scale)}
+        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize["width"] * self.scale),
+                         "y": int(self.start["y"] - self.enemySize["height"] * self.scale)}
 
         self.speed = random.randrange(self.speedFactor[0],self.speedFactor[1])
         self.health = 0
@@ -58,11 +52,11 @@ class enemyClass(editingImage.SpriteSheetClass):
         self.health = 0
         self.speed = random.randrange(self.speedFactor[0],self.speedFactor[1])
 
-        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize[0] * self.scale),
-                         "y": int(self.start["y"] - self.enemySize[1] * self.scale)}
+        self.enemyPos = {"x": random.randint(self.start["x"], self.end["x"] - self.enemySize["width"] * self.scale),
+                         "y": int(self.start["y"] - self.enemySize["height"] * self.scale)}
 
     def destruccionAnimation(self):
-        self.exploutingAnimation = editingImage.AnimationClass((self.enemyPos["x"],self.enemyPos["y"]),self.animationImg,self.explotionSteps,self.enemySize,100,self.screenObject)
+        self.exploutingAnimation = editingImage.AnimationClass((self.enemyPos["x"],self.enemyPos["y"]),self.animationImg,self.explotionSteps,(self.enemySize["width"], self.enemySize["height"]),self.ticks,self.onlyOnce,self.screenObject)
         self.destroyAnimationList.append(self.exploutingAnimation)
 
     def loseHealth(self,bulletDamage):
@@ -83,13 +77,13 @@ class enemyClass(editingImage.SpriteSheetClass):
         if self.enemyPos["x"] > self.end["x"]:
             self.outOfLine()
 
-        if self.enemyPos["x"] < self.start["x"] - self.enemySize[0] * self.scale:
+        if self.enemyPos["x"] < self.start["x"] - self.enemySize["width"] * self.scale:
             self.outOfLine()
 
         if self.enemyPos["y"] > self.end["y"]:
             self.outOfLine()
 
-        if self.enemyPos["y"] < self.start["y"] - self.enemySize[1] * self.scale - 100:
+        if self.enemyPos["y"] < self.start["y"] - self.enemySize["height"] * self.scale - 100:
             self.outOfLine()
 
     def printEnemy(self,enemyList):

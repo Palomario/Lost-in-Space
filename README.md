@@ -19,6 +19,8 @@ How to start the game:
 
 4. Play! :)
 
+SOMETHING COOL: If you press T (the key) something amazing happens. 
+
 
 
 

@@ -10,6 +10,7 @@ import playerFile
 import enemyFile
 import gameData
 import menu
+import moneyFile
 
 pygame.init()
 
@@ -104,11 +105,16 @@ def buildObjects(screenObject):
         star = backgroundFile.StarsClass(screenObject)
         stars.append(star)
 
+    howMuchMoney = 5
+    howManyCoins, howManyBills = 3, 1
+
+    money = moneyFile.Money(howManyCoins,howManyBills,screenObject=screenObject)
+
     bg = pygame.image.load('images/game/bg.png').convert_alpha()
     planets = backgroundFile.BackgroundClass(bg,screenObject)
  
     player = playerFile.playerClass(screenObject)
-    playerList = listCreator(player.steps,player,player.playerSize[0],player.playerSize[1],screenObject)
+    playerList = listCreator(player.steps,player,player.playerSize["width"],player.playerSize["height"],screenObject)
 
     enemyObjectList = []
     enemy = enemyFile.enemyClass(0,screenObject)
@@ -116,14 +122,14 @@ def buildObjects(screenObject):
         enemy = enemyFile.enemyClass(b,screenObject)
         enemyObjectList.append(enemy)
 
-    enemyList = listCreator(enemyObjectList[0].steps,enemyObjectList[0],enemyObjectList[0].enemySize[0],enemyObjectList[0].enemySize[1],screenObject)
+    enemyList = listCreator(enemyObjectList[0].steps,enemyObjectList[0],enemyObjectList[0].enemySize["width"],enemyObjectList[0].enemySize["height"],screenObject)
 
-    return enemyList,enemyObjectList,playerList,player,planets,stars
+    return enemyList,enemyObjectList,playerList,player,planets,stars,money
 
 def checkEvents(screenObject,objectList,specialEfect):
     gameData = screenObject.returnGameData()
     gameSize = gameData[1]
-    run = gameData[6]
+    runGame = gameData[6]
 
     mauseEvent = False
 
@@ -140,7 +146,7 @@ def checkEvents(screenObject,objectList,specialEfect):
             screenObject.getGameData(screenSize)
             screenObject.calculateGameSize()
 
-            enemyList,enemyObjectList,playerList,player,planets,stars = objectList
+            enemyList,enemyObjectList,playerList,player,planets,stars,money = objectList
 
             for enemy in enemyObjectList:
                 enemy.reloadGameData(screenObject)
@@ -156,10 +162,13 @@ def checkEvents(screenObject,objectList,specialEfect):
             for i in range(0,600):
                 stars[i].reloadGameData(screenObject)
 
+            money.reloadGameData(screenObject)
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                if screenObject.run:
-                    screenObject.run = False
+                if screenObject.runGame:
+                    screenObject.runGame = False
+                    screenObject.gameOver = False
                 else: 
                     quit()
             elif event.key == pygame.K_p:
@@ -173,6 +182,3 @@ def checkEvents(screenObject,objectList,specialEfect):
             
     return specialEfect,mauseEvent
     pygame.display.update()
-
-
-

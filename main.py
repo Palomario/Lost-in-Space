@@ -9,3 +9,5 @@ screenObject = gameData.Screen()
 screenObject.calculateGameSize()
 menu.mainMenu(screenObject)
 
+os.system('cls')
+
