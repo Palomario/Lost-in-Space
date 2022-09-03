@@ -230,14 +230,18 @@ def theGame(screenObject):
         for i in range(0,600):
             stars[i].moveCircle(player.returnStarsSpeed())
 
+        coinDirectionX, coinDirectionY = player.returnCoinSpeed()
+        billDirectionX, billDirectionY = player.returnBillSpeed()
+
         money.printMoneyAnimations()
+        money.moveMoney(coinDirectionX,coinDirectionY,billDirectionX, billDirectionY)
 
         player.getAllObjectList(playerList,enemyList,enemyObjectList,money)
         player.movePlayer()
         player.printPlayer()
-        player.colisionsEnemys()
-        player.colisionsBullet()
+        #player.colisionsEnemys()
         player.colisionsMoney()
+        player.colisionsBullet()
 
         destroyAnimationList = []
         for enemy in enemyObjectList:

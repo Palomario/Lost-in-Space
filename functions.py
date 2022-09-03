@@ -105,10 +105,7 @@ def buildObjects(screenObject):
         star = backgroundFile.StarsClass(screenObject)
         stars.append(star)
 
-    howMuchMoney = 5
-    howManyCoins, howManyBills = 3, 1
-
-    money = moneyFile.Money(howManyCoins,howManyBills,screenObject=screenObject)
+    money = moneyFile.Money(screenObject=screenObject)
 
     bg = pygame.image.load('images/game/bg.png').convert_alpha()
     planets = backgroundFile.BackgroundClass(bg,screenObject)
@@ -182,3 +179,18 @@ def checkEvents(screenObject,objectList,specialEfect):
             
     return specialEfect,mauseEvent
     pygame.display.update()
+
+def writeText(string, positionX, positionY, fontSize, screenObject):
+    gameData = screenObject.returnGameData()
+    screen = gameData[3]
+
+    font = pygame.font.Font('freesansbold.ttf', fontSize) 
+
+    text = font.render(string, True, (255, 255, 255))
+
+    textRect = text.get_rect()
+
+    textRect.center = (positionX, positionY)
+    textRect
+
+    screen.blit(text, textRect)

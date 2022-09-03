@@ -39,6 +39,8 @@ class playerClass(editingImage.SpriteSheetClass):
         self.starsDirectionX,self.starsDirectionY = 0,1
         self.enemyDirectionX,self.enemyDirectionY = 0,1
         self.backgroundSpeed = 0.5
+        self.coinDirectionX, self.coinDirectionY = 0,1
+        self.billDirectionX, self.billDirectionY = 0,1
 
         self.coinsCount = 0
         self.billsCount = 0
@@ -54,6 +56,8 @@ class playerClass(editingImage.SpriteSheetClass):
         self.playerList = playerList
         self.enemyList = enemyList
         self.enemyObjectList = enemyObjectList
+
+        self.moneyObject = moneyObject
         self.billList = moneyObject.billList
         self.coinList = moneyObject.coinList
 
@@ -65,6 +69,12 @@ class playerClass(editingImage.SpriteSheetClass):
 
     def returnStarsSpeed(self):
         return self.starsDirectionX,self.starsDirectionY
+
+    def returnCoinSpeed(self):
+        return self.coinDirectionX, self.coinDirectionY
+
+    def returnBillSpeed(self):
+        return self.billDirectionX, self.billDirectionY
 
     def playerHealth(self):
         if self.health == 1:
@@ -79,12 +89,16 @@ class playerClass(editingImage.SpriteSheetClass):
             self.playerPos["x"] += self.speed
             self.starsDirectionX = -1
             self.enemyDirectionX = -0.25
+            self.coinDirectionX = -1
+            self.billDirectionX = -1
             
             self.sprite = 1
         elif self.playerDirection == "left":
             self.playerPos["x"] -= self.speed
             self.starsDirectionX = 1
             self.enemyDirectionX = 0.25
+            self.coinDirectionX = 1
+            self.billDirectionX = 1
 
             self.sprite = 2
         elif self.playerDirection == "up":
@@ -92,6 +106,8 @@ class playerClass(editingImage.SpriteSheetClass):
             self.starsDirectionY = 1.5  
             self.enemyDirectionY = 1.5
             self.backgroundSpeed = 1
+            self.coinDirectionY = 1.5
+            self.billDirectionY = 1.5
 
             self.sprite = 3 
         elif self.playerDirection == "down":
@@ -99,12 +115,16 @@ class playerClass(editingImage.SpriteSheetClass):
             self.starsDirectionY = 0.5
             self.enemyDirectionY = 0.5
             self.backgroundSpeed = 0.2
+            self.coinDirectionY = 0.5
+            self.billDirectionY = 0.5
 
             self.sprite = 4  
         elif self.playerDirection == "":
             self.starsDirectionX,self.starsDirectionY = 0,1
             self.enemyDirectionX,self.enemyDirectionY = 0,1
             self.backgroundSpeed = 0.5
+            self.coinDirectionX, self.coinDirectionY = 0,1
+            self.billDirectionX, self.billDirectionY = 0,1
 
             self.sprite = 0
 
@@ -182,6 +202,10 @@ class playerClass(editingImage.SpriteSheetClass):
                     colisions = functions.detectColision(enemyMask,(enemy.enemyPos["x"],enemy.enemyPos["y"]),bulletMask,(bullet.x, bullet.y)) 
 
                     if colisions:
+
+                        if enemy.health == 2:
+                            self.moneyObject.createMoneyObjects(enemy.enemyPos, enemy.enemySize)
+
                         if not sameColision:
                             a = self.bullets.index(bulletsList)
                             b = bulletsList.index(bullet)
@@ -205,24 +229,35 @@ class playerClass(editingImage.SpriteSheetClass):
     def colisionsMoney(self):
         playerMask = self.playerList[self.health][self.sprite][1]
         for bill in self.billList:
+            if bill.outOfLine == True:
+                self.billList.remove(bill)
+                break
             billMask = bill.mask 
             
             colisions = functions.detectColision(billMask,(bill.billPos["x"],bill.billPos["y"]),playerMask,(self.playerPos["x"],self.playerPos["y"])) 
 
             if colisions:
                 self.billsCount += 1
-                bill.reset()
+                self.billList.remove(bill)
 
         for coin in self.coinList:
+            if coin.outOfLine == True:
+                self.coinList.remove(coin)
+                break
             coinMask = coin.mask 
             
             colisions = functions.detectColision(coinMask,(coin.coinPos["x"],coin.coinPos["y"]),playerMask,(self.playerPos["x"],self.playerPos["y"])) 
 
             if colisions:
                 self.coinsCount += 1
-                coin.reset()
+                self.coinList.remove(coin)
 
         self.calculateBalance()
+
+        self.moneyObject.coinsCount = self.coinsCount
+        self.moneyObject.billsCount = self.billsCount
+
+        self.moneyObject.balance = self.balance
 
     def calculateBalance(self):
         self.balance = self.coinsCount / 100 + self.billsCount
