@@ -10,10 +10,10 @@ class Money(object):
         self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()      
 
         bill = editingImage.SpriteSheetClass(pygame.image.load('images/game/bill.png').convert_alpha())
-        self.billImg, billMask = bill.getImage(0,41,22,self.screenObject)
+        self.billImg, billMask = bill.getImage(0,40,22,self.screenObject)
 
         coin = editingImage.SpriteSheetClass(pygame.image.load('images/game/coin.png').convert_alpha())
-        self.coinImg, coinMask = coin.getImage(0,9,9,self.screenObject)
+        self.coinImg, coinMask = coin.getImage(0,22,22,self.screenObject)
 
         self.provabilityList = ["bill","coin","coin","coin","coin","coin","coin","coin","coin","coin"]
 
@@ -36,7 +36,6 @@ class Money(object):
             coin = Coin(self.screenObject,pos)
             self.coinList.append(coin)
 
-        self.balance = 0.00
         self.coinsCount = 0
         self.billsCount = 0
 
@@ -59,8 +58,6 @@ class Money(object):
             self.billsCount += 1
         elif typeOfMoney == "coin":
             self.coinsCount += 1
-
-        self.balance = self.coinsCount / 100 + self.billsCount
 
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
@@ -98,10 +95,8 @@ class Money(object):
         self.screen.blit(self.billImg, (self.start["x"],self.start["y"]))       
         self.screen.blit(self.coinImg, (self.start["x"] + 3,25 * self.scale + self.start["y"])) 
 
-        functions.writeText(str(self.billsCount), self.start["x"] + self.billImg.get_width() * self.scale,self.start["y"] + self.billImg.get_height() * self.scale / 2 - 4 , 25, self.screenObject)
-        functions.writeText(str(self.coinsCount), self.start["x"] + self.coinImg.get_width() * self.scale * 2,self.start["y"] + self.coinImg.get_height() * self.scale + self.billImg.get_height() * self.scale / 2, 18, self.screenObject)
-
-        functions.writeText("Balance: " + str(self.balance), self.start["x"] + int(self.gameSize["width"] / 5),self.end["y"] - 25, 25, self.screenObject)
+        functions.writeText(str(self.billsCount), 30,[self.start["x"] + self.billImg.get_width() + 10,self.start["y"]], self.screenObject)
+        functions.writeText(str(self.coinsCount), 30,[self.start["x"] + self.coinImg.get_width() + 10,self.start["y"] + self.billImg.get_height()], self.screenObject)
 
 class Bill(object):
     def __init__(self,screenObject,pos):

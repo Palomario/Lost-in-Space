@@ -160,6 +160,7 @@ class playerClass(editingImage.SpriteSheetClass):
             colisions = functions.detectColision(enemyMask,(enemy.enemyPos["x"],enemy.enemyPos["y"]),playerMask,(self.playerPos["x"],self.playerPos["y"]))
 
             if colisions:
+                enemy.destruccionAnimation()
                 enemy.reset()
                 
                 self.playerPos = {"x": int(self.screen.get_width() / 2),
@@ -252,15 +253,9 @@ class playerClass(editingImage.SpriteSheetClass):
                 self.coinsCount += 1
                 self.coinList.remove(coin)
 
-        self.calculateBalance()
-
         self.moneyObject.coinsCount = self.coinsCount
         self.moneyObject.billsCount = self.billsCount
 
-        self.moneyObject.balance = self.balance
-
-    def calculateBalance(self):
-        self.balance = self.coinsCount / 100 + self.billsCount
 
     def shooting(self,keys):
         self.coolDownCount = functions.cooldown(self.coolDownCount,self.cooldown)

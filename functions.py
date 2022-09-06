@@ -13,6 +13,7 @@ import menu
 import moneyFile
 
 pygame.init()
+pygame.font.init()
 
 def frameworkScreen(screenObject):
     gameData = screenObject.returnGameData()
@@ -161,10 +162,15 @@ def checkEvents(screenObject,objectList,specialEfect):
 
             money.reloadGameData(screenObject)
 
+            screenObject.paused = True
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 if screenObject.runGame:
+                    screenObject.gameOver = False
                     screenObject.runGame = False
+                    
+                elif screenObject.gameOver:
                     screenObject.gameOver = False
                 else: 
                     quit()
@@ -180,17 +186,122 @@ def checkEvents(screenObject,objectList,specialEfect):
     return specialEfect,mauseEvent
     pygame.display.update()
 
-def writeText(string, positionX, positionY, fontSize, screenObject):
-    gameData = screenObject.returnGameData()
-    screen = gameData[3]
+def writeText(text,fontSize,position,screenObject):
+    screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
-    font = pygame.font.Font('freesansbold.ttf', fontSize) 
+    text = [word.split(' ') for word in text.splitlines()]
 
-    text = font.render(string, True, (255, 255, 255))
+    clock = pygame.time.Clock()
 
-    textRect = text.get_rect()
+    pathFont = os.path.abspath('images/britannic-becker-bold.ttf')
+    font = pygame.font.Font(pathFont, fontSize) 
+    space = font.size(' ')[0]
 
-    textRect.center = (positionX, positionY)
-    textRect
+    pos = [position[0] + start["x"], position[1] + start["y"]]
+    x, y = pos
+    for lines in text:
 
-    screen.blit(text, textRect)
+        for word in lines:
+
+            newText = ""
+            text = font.render(newText, True, (0, 0, 0))
+            textWidth, textHeight = text.get_size()
+
+            otherText = newText
+            for letter in word:                
+                otherText += str(letter)                    
+                
+                text = font.render(otherText, True, (0, 0, 0))
+                textWidth, textHeight = text.get_size()
+
+                if x + textWidth >= gameSize["width"]:
+                    x = position[0]
+                    y += textHeight
+
+                textRect = text.get_rect()
+                textRect.topleft = (x, y)
+
+            for letter in word:
+                screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+                newText += str(letter)                    
+                
+                text = font.render(newText, True, (255, 255, 255))
+                textWidth, textHeight = text.get_size()
+
+                textRect = text.get_rect()
+                textRect.topleft = (x, y)
+
+                screen.blit(text, textRect)
+
+                frameworkScreen(screenObject)
+
+            x += textWidth + space
+        x = position[0]
+        y += 50
+
+def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image):
+    screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+    text = [word.split(' ') for word in text.splitlines()]
+
+    clock = pygame.time.Clock()
+
+    pathFont = os.path.abspath('images/britannic-becker-bold.ttf')
+    font = pygame.font.Font(pathFont, fontSize) 
+    space = font.size(' ')[0]
+    
+    screen.blit(image,(start["x"],start["y"]))
+
+    pos = [position[0] + start["x"], position[1] + start["y"]]
+    x, y = pos
+    for lines in text:
+
+        for word in lines:
+
+            newText = ""
+            text = font.render(newText, True, (0, 0, 0))
+            textWidth, textHeight = text.get_size()
+
+            otherText = newText
+            for letter in word:
+                checkEvents(screenObject,objectList,specialEfect=False)
+
+                otherText += str(letter)                    
+                
+                text = font.render(otherText, True, (0, 0, 0))
+                textWidth, textHeight = text.get_size()
+
+                if x + textWidth >= gameSize["width"]:
+                    x = position[0]
+                    y += textHeight
+
+                textRect = text.get_rect()
+                textRect.topleft = (x, y)
+
+            for letter in word:
+                checkEvents(screenObject,objectList,specialEfect=False)
+                screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+                newText += str(letter)                    
+                
+                text = font.render(newText, True, (255, 255, 255))
+                textWidth, textHeight = text.get_size()
+
+                textRect = text.get_rect()
+                textRect.topleft = (x, y)
+
+                screen.blit(text, textRect)
+                time.sleep(0.05)
+
+                frameworkScreen(screenObject)
+
+                pygame.display.update()
+                clock.tick(70)
+            x += textWidth + space
+            time.sleep(0.1)
+        x = position[0]
+        y += 50
+
+    for a in range(200000):
+        checkEvents(screenObject,objectList,specialEfect=False)
