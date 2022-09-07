@@ -45,6 +45,12 @@ class playerClass(editingImage.SpriteSheetClass):
         self.coinsCount = 0
         self.billsCount = 0
 
+        self.score = 0
+        self.lastUpdateScore = pygame.time.get_ticks()
+        self.ticksScore = 1000
+        self.dificultyCount = 0
+        self.dificulty = 30
+
     def reloadGameData(self,screenObject):
         self.screenObject = screenObject
         self.screenSize,self.gameSize,self.scale,self.screen,self.start,self.end,self.runGame = self.screenObject.returnGameData()
@@ -75,6 +81,21 @@ class playerClass(editingImage.SpriteSheetClass):
 
     def returnBillSpeed(self):
         return self.billDirectionX, self.billDirectionY
+
+    def calculateEnemiesDown(self):
+        for enemy in self.enemyObjectList:
+            self.enemiesDown += enemy.enemiesDown
+
+    def playerScore(self):
+        if functions.timeCooldown(self.ticksScore,self.lastUpdateScore):
+            self.lastUpdateScore = pygame.time.get_ticks()
+            self.score += 1
+            self.dificultyCount += 1
+
+            if self.dificultyCount >= 20:
+                self.dificulty += 1
+                self.dificultyCount = 0
+
 
     def playerHealth(self):
         if self.health == 1:
@@ -191,7 +212,6 @@ class playerClass(editingImage.SpriteSheetClass):
 
     def colisionsBullet(self):
         for enemy in self.enemyObjectList:
-
             enemyMask = self.enemyList[enemy.typeOfenemy][enemy.health][1]
             for bulletsList in self.bullets:
 
@@ -206,6 +226,9 @@ class playerClass(editingImage.SpriteSheetClass):
 
                         if enemy.health == 2:
                             self.moneyObject.createMoneyObjects(enemy.enemyPos, enemy.enemySize)
+
+                            self.score += 10
+                            self.dificultyCount += 200
 
                         if not sameColision:
                             a = self.bullets.index(bulletsList)
@@ -253,9 +276,14 @@ class playerClass(editingImage.SpriteSheetClass):
                 self.coinsCount += 1
                 self.coinList.remove(coin)
 
+        if self.coinsCount == 10:
+            self.billsCount += 1
+            self.coinsCount = 0
+
         self.moneyObject.coinsCount = self.coinsCount
         self.moneyObject.billsCount = self.billsCount
 
+        self.moneyObject.playerScore = self.score
 
     def shooting(self,keys):
         self.coolDownCount = functions.cooldown(self.coolDownCount,self.cooldown)

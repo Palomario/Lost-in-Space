@@ -164,11 +164,13 @@ def checkEvents(screenObject,objectList,specialEfect):
 
             screenObject.paused = True
 
+            mauseEvent = True
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 if screenObject.runGame:
                     screenObject.gameOver = False
-                    screenObject.runGame = False
+                    screenObject.runGame = False 
                     
                 elif screenObject.gameOver:
                     screenObject.gameOver = False
@@ -184,37 +186,35 @@ def checkEvents(screenObject,objectList,specialEfect):
             mauseEvent = True
             
     return specialEfect,mauseEvent
-    pygame.display.update()
+     
 
-def writeText(text,fontSize,position,screenObject):
+def writeText(text,fontSize,position,screenObject,color):
     screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
     text = [word.split(' ') for word in text.splitlines()]
-
-    clock = pygame.time.Clock()
 
     pathFont = os.path.abspath('images/britannic-becker-bold.ttf')
     font = pygame.font.Font(pathFont, fontSize) 
     space = font.size(' ')[0]
 
-    pos = [position[0] + start["x"], position[1] + start["y"]]
-    x, y = pos
+    x, y = position
     for lines in text:
 
         for word in lines:
 
             newText = ""
-            text = font.render(newText, True, (0, 0, 0))
+            text = font.render(newText, True, color)
             textWidth, textHeight = text.get_size()
 
             otherText = newText
-            for letter in word:                
-                otherText += str(letter)                    
+            for letter in word:
+                screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+                otherText += str(letter)
                 
-                text = font.render(otherText, True, (0, 0, 0))
+                text = font.render(otherText, True, color)
                 textWidth, textHeight = text.get_size()
 
-                if x + textWidth >= gameSize["width"]:
+                if x + textWidth >= end["x"]:
                     x = position[0]
                     y += textHeight
 
@@ -226,7 +226,7 @@ def writeText(text,fontSize,position,screenObject):
 
                 newText += str(letter)                    
                 
-                text = font.render(newText, True, (255, 255, 255))
+                text = font.render(newText, True, color)
                 textWidth, textHeight = text.get_size()
 
                 textRect = text.get_rect()
@@ -240,7 +240,7 @@ def writeText(text,fontSize,position,screenObject):
         x = position[0]
         y += 50
 
-def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image):
+def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image,color):
     screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
     text = [word.split(' ') for word in text.splitlines()]
@@ -253,26 +253,29 @@ def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image)
     
     screen.blit(image,(start["x"],start["y"]))
 
-    pos = [position[0] + start["x"], position[1] + start["y"]]
-    x, y = pos
+    x, y = position
     for lines in text:
 
         for word in lines:
 
             newText = ""
-            text = font.render(newText, True, (0, 0, 0))
+            text = font.render(newText, True, color)
             textWidth, textHeight = text.get_size()
 
             otherText = newText
             for letter in word:
-                checkEvents(screenObject,objectList,specialEfect=False)
+                specialEfect, mauseEvent = checkEvents(screenObject,objectList,specialEfect=False)
+                screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+                if mauseEvent:
+                    break
 
                 otherText += str(letter)                    
                 
-                text = font.render(otherText, True, (0, 0, 0))
+                text = font.render(otherText, True, color)
                 textWidth, textHeight = text.get_size()
 
-                if x + textWidth >= gameSize["width"]:
+                if x + textWidth >= end["x"]:
                     x = position[0]
                     y += textHeight
 
@@ -280,12 +283,15 @@ def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image)
                 textRect.topleft = (x, y)
 
             for letter in word:
-                checkEvents(screenObject,objectList,specialEfect=False)
+                specialEfect, mauseEvent = checkEvents(screenObject,objectList,specialEfect=False)
                 screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
+
+                if mauseEvent:
+                    break
 
                 newText += str(letter)                    
                 
-                text = font.render(newText, True, (255, 255, 255))
+                text = font.render(newText, True, color)
                 textWidth, textHeight = text.get_size()
 
                 textRect = text.get_rect()
@@ -297,11 +303,14 @@ def writeTextWithAnimation(text,fontSize,position,screenObject,objectList,image)
                 frameworkScreen(screenObject)
 
                 pygame.display.update()
-                clock.tick(70)
+            if mauseEvent:
+                break
             x += textWidth + space
             time.sleep(0.1)
+        if mauseEvent:
+            break
         x = position[0]
         y += 50
 
-    for a in range(200000):
-        checkEvents(screenObject,objectList,specialEfect=False)
+    if mauseEvent:
+        pygame.display.update()

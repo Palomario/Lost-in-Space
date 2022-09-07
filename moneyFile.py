@@ -20,6 +20,10 @@ class Money(object):
         self.howManyBills = 0
         self.howManyCoins = 0
 
+        self.playerScore = 0
+
+        self.white = [255,255,255]
+
         self.billList = []
         for billCount in range(self.howManyBills):
             pos = {"x": random.randint(self.start["x"],self.end["x"] - 50 * self.scale), 
@@ -95,8 +99,10 @@ class Money(object):
         self.screen.blit(self.billImg, (self.start["x"],self.start["y"]))       
         self.screen.blit(self.coinImg, (self.start["x"] + 3,25 * self.scale + self.start["y"])) 
 
-        functions.writeText(str(self.billsCount), 30,[self.start["x"] + self.billImg.get_width() + 10,self.start["y"]], self.screenObject)
-        functions.writeText(str(self.coinsCount), 30,[self.start["x"] + self.coinImg.get_width() + 10,self.start["y"] + self.billImg.get_height()], self.screenObject)
+        functions.writeText(str(self.billsCount), 30,[self.start["x"] + self.billImg.get_width() + 10,self.start["y"]], self.screenObject,self.white)
+        functions.writeText(str(self.coinsCount), 30,[self.start["x"] + self.coinImg.get_width() + 10,self.start["y"] + self.billImg.get_height()], self.screenObject,self.white)
+
+        functions.writeText("Score: {}".format(self.playerScore), 30,[self.start["x"] + 5,self.start["y"] + self.billImg.get_height() + self.coinImg.get_height()], self.screenObject,self.white)
 
 class Bill(object):
     def __init__(self,screenObject,pos):

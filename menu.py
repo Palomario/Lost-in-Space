@@ -23,8 +23,6 @@ def mainMenu(screenObject):
         particles.append(particle)
         particle.printParticles()
 
-    clock = pygame.time.Clock()
-
     playImg = pygame.image.load('images/mainMenu/play.png').convert_alpha()
     playImg.set_colorkey([0,255,0])
 
@@ -91,8 +89,8 @@ def mainMenu(screenObject):
                             
         functions.frameworkScreen(screenObject)
 
+        screenObject.clock.tick(70)
         pygame.display.update()
-        clock.tick(70)
 
 def pauseMenu(screenObject,objectList):
     if screenObject.paused:
@@ -103,8 +101,6 @@ def pauseMenu(screenObject,objectList):
             particle = editingImage.Particles(screenObject)
             particles.append(particle)
             particle.printParticles()
-
-        clock = pygame.time.Clock()
 
         resumeImg = pygame.image.load('images/pauseMenu/resume.png').convert_alpha()
         resumeImg.set_colorkey([0,255,0])
@@ -157,7 +153,7 @@ def pauseMenu(screenObject,objectList):
             functions.frameworkScreen(screenObject)
 
             pygame.display.update()
-            clock.tick(70)
+            screenObject.clock.tick(70)
 
 def gameOverMenu(screenObject,objectList):
     if screenObject.gameOver:
@@ -170,8 +166,6 @@ def gameOverMenu(screenObject,objectList):
             particles.append(particle)
             particle.printParticles()
 
-        clock = pygame.time.Clock()
-
         tryAgainImg = pygame.image.load('images/gameOverMenu/tryAgain.png').convert_alpha()
         tryAgainImg.set_colorkey([0,255,0])
 
@@ -179,16 +173,17 @@ def gameOverMenu(screenObject,objectList):
         menuImg.set_colorkey([0,255,0])
 
         gameOverMenuImage = pygame.image.load('images/gameOverMenu/gameOverMenu1.png').convert_alpha()
-        score = "IN PROGRESS"
 
-        text = "Coins: {}\nBills: {}\nScore: {}\nEnemies down: {}\nHits on enemies: {}\n".format(player.coinsCount, player.billsCount, score, player.enemiesDown, player.hits)
+        text = "Coins: {}\nBills: {}\nScore: {}\nEnemies down: {}\nHits on enemies: {}\n".format(player.coinsCount, player.billsCount, player.score, player.enemiesDown, player.hits)
 
         count = 0
         fontSize = 50
 
         screen.blit(gameOverMenuImage,(start["x"],start["y"]))
 
-        functions.writeTextWithAnimation(text,50,[start["x"]+100,start["y"] + 325],screenObject,objectList,gameOverMenuImage)
+        textColor = [72,119,237]
+
+        functions.writeTextWithAnimation(text,50,[start["x"]+100,start["y"] + 318],screenObject,objectList,gameOverMenuImage,textColor)
 
         gameOverMenuImage = pygame.image.load('images/gameOverMenu/gameOverMenu2.png').convert_alpha()
 
@@ -199,6 +194,9 @@ def gameOverMenu(screenObject,objectList):
             specialEfect,mauseEvent = functions.checkEvents(screenObject,objectList,specialEfect=False)
 
             screen.blit(gameOverMenuImage,(start["x"],start["y"]))
+
+            functions.writeText(text,50,[start["x"]+99,start["y"] + 317],screenObject,(255,255,255))
+            functions.writeText(text,50,[start["x"]+100,start["y"] + 318],screenObject,textColor)
 
             mauseCor = pygame.mouse.get_pos()
             mausePos = {"x": mauseCor[0], "y": mauseCor[1]}
@@ -223,13 +221,10 @@ def gameOverMenu(screenObject,objectList):
                         particle.printParticles()
                         particle.reloadGameData(screenObject)
 
-            functions.writeText(text,50,[start["x"]+100,start["y"] + 325],screenObject)
-
             functions.frameworkScreen(screenObject)
 
             pygame.display.update()
-            clock.tick(70)
-
+            screenObject.clock.tick(70)
 
 def theGame(screenObject):
     if screenObject.runGame:
@@ -240,7 +235,6 @@ def theGame(screenObject):
         screenSize,gameSize,scale,screen,start,end,runGame = screenObject.returnGameData()
 
         specialEfect = False
-        clock = pygame.time.Clock()
         pygame.display.set_caption("Spaceships Game")
         while screenObject.runGame:
             if screenObject.gameOver:
@@ -264,6 +258,7 @@ def theGame(screenObject):
             money.moveMoney(coinDirectionX,coinDirectionY,billDirectionX, billDirectionY)
 
             player.getAllObjectList(playerList,enemyList,enemyObjectList,money)
+            player.playerScore()
             player.movePlayer()
             player.printPlayer()
             player.colisionsEnemys()
@@ -285,7 +280,8 @@ def theGame(screenObject):
 
             functions.frameworkScreen(screenObject)    
 
-            clock.tick(30)
             pygame.display.update()
+            screenObject.clock.tick(30)
 
+        player.calculateEnemiesDown()
         gameOverMenu(screenObject,objectList)

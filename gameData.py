@@ -10,6 +10,8 @@ class Screen(object):
         self.runGame = False
         self.paused = False
         self.gameOver = False
+
+        self.clock = clock = pygame.time.Clock()
         
         self.startingPoint = {"x": int(self.screenSize["width" ] / 2) - int(self.gameSize["width" ] / 2),
                               "y": int(self.screenSize["height"] / 2) - int(self.gameSize["height"] / 2)}
